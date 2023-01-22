@@ -1,10 +1,12 @@
+package src;
+
 /**
  * Your implementation of a CircularSinglyLinkedList without a tail pointer.
  *
- * @author YOUR NAME HERE
+ * @author HOANG GIA NGHI(ALEX) DINH, [FIRST, LAST]
  * @version 1.0
- * @userid YOUR USER ID HERE (i.e. gburdell3)
- * @GTID YOUR GT ID HERE (i.e. 900000000)
+ * @userid ndinh31 (i.e. gburdell3)
+ * @GTID 903733512
  *
  * Collaborators: LIST ALL COLLABORATORS YOU WORKED WITH HERE
  *
@@ -33,7 +35,29 @@ public class CircularSinglyLinkedList<T> {
      * @throws java.lang.IllegalArgumentException  if data is null
      */
     public void addAtIndex(int index, T data) {
+        if (data == null) {
+            throw new IllegalArgumentException("Cannot add the null data into the data structure!");
+        }
+        if (index == 0) {
+            this.addToFront(data);
+        }
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException("Your input is out of bounds. "
+                    + "The bounds are between 0 and " + size);
+        }
+        CircularSinglyLinkedListNode<T> newNode = new CircularSinglyLinkedListNode<>(data);
+        if (true) {
+            CircularSinglyLinkedListNode<T> curr = head;
+            int i = 0;
+            while (i < index - 1) {
+                curr = curr.getNext();
+                i++;
 
+            }
+            newNode.setNext(curr.getNext());
+            curr.setNext(newNode);
+            size++;
+        }
     }
 
     /**
@@ -45,7 +69,9 @@ public class CircularSinglyLinkedList<T> {
      * @throws java.lang.IllegalArgumentException if data is null
      */
     public void addToFront(T data) {
-
+        if (data == null) {
+            throw new IllegalArgumentException("Cannot add the null data into the data structure!");
+        }
     }
 
     /**
@@ -158,7 +184,16 @@ public class CircularSinglyLinkedList<T> {
      * nodes) in the list in the same order
      */
     public T[] toArray() {
-        return null;
+        T[] arr = (T[]) new Object[size];
+        CircularSinglyLinkedListNode<T> curr = head;
+        int count = 0;
+        for (int i = 0; i < size; i++) {
+            arr[count] = curr.getData();
+            curr = curr.getNext();
+            count++;
+        }
+
+        return arr;
     }
 
     /**
