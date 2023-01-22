@@ -1,5 +1,7 @@
 package src;
 
+import java.util.NoSuchElementException;
+
 /**
  * Your implementation of a CircularSinglyLinkedList without a tail pointer.
  *
@@ -11,6 +13,8 @@ package src;
  * Collaborators: LIST ALL COLLABORATORS YOU WORKED WITH HERE
  *
  * Resources: LIST ALL NON-COURSE RESOURCES YOU CONSULTED HERE
+ * https://www.javatpoint.com/java-program-to-insert-a-new-node
+ * -at-the-beginning-of-the-circular-linked-list
  */
 public class CircularSinglyLinkedList<T> {
 
@@ -38,15 +42,15 @@ public class CircularSinglyLinkedList<T> {
         if (data == null) {
             throw new IllegalArgumentException("Cannot add the null data into the data structure!");
         }
-        if (index == 0) {
-            this.addToFront(data);
-        }
+
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("Your input is out of bounds. "
                     + "The bounds are between 0 and " + size);
         }
         CircularSinglyLinkedListNode<T> newNode = new CircularSinglyLinkedListNode<>(data);
-        if (true) {
+        if (index == 0) {
+            this.addToFront(data);
+        } else {
             CircularSinglyLinkedListNode<T> curr = head;
             int i = 0;
             while (i < index - 1) {
@@ -72,6 +76,18 @@ public class CircularSinglyLinkedList<T> {
         if (data == null) {
             throw new IllegalArgumentException("Cannot add the null data into the data structure!");
         }
+        if (head == null) {
+            head = new CircularSinglyLinkedListNode<>(data);
+            head.setNext(head);
+        } else {
+            CircularSinglyLinkedListNode<T> newNode = new CircularSinglyLinkedListNode<>(head.getData());
+            newNode.setNext(head.getNext());
+            head.setNext(newNode);
+            newNode.setData(head .getData());
+            head.setData(data);
+        }
+
+        size++;
     }
 
     /**
@@ -83,7 +99,11 @@ public class CircularSinglyLinkedList<T> {
      * @throws java.lang.IllegalArgumentException if data is null
      */
     public void addToBack(T data) {
-
+        if (data == null) {
+            throw new IllegalArgumentException("Cannot add the null data into the data structure!");
+        }
+        this.addToFront(data);
+        head = head.getNext();
     }
 
     /**
@@ -96,7 +116,24 @@ public class CircularSinglyLinkedList<T> {
      * @throws java.lang.IndexOutOfBoundsException if index < 0 or index >= size
      */
     public T removeAtIndex(int index) {
-        return null;
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Index is out of bound of the list!");
+        }
+        if (head == null) {
+            return null;
+        }
+        if (index == 0) {
+            return this.removeFromFront();
+        } else {
+            CircularSinglyLinkedListNode<T> curr = head;
+            for (int i = 0; i < index - 1; i++) {
+                curr = curr.getNext();
+            }
+            T removedData = curr.getNext().getData();
+            curr.setNext(curr.getNext().getNext());
+            size--;
+            return removedData;
+        }
     }
 
     /**
@@ -108,7 +145,24 @@ public class CircularSinglyLinkedList<T> {
      * @throws java.util.NoSuchElementException if the list is empty
      */
     public T removeFromFront() {
-        return null;
+        if (head == null) {
+            return null;
+        }
+        if (size == 0) {
+            throw new NoSuchElementException("This list is empty, so no data available to remove!");
+        }
+        if (size == 1) {
+            T temp = head.getData();
+            head = null;
+            size--;
+            return temp;
+        } else {
+            T removeValue = head.getData();
+            head.setData(head.getNext().getData());
+            head.setNext(head.getNext().getNext());
+            size--;
+            return removeValue;
+        }
     }
 
     /**
@@ -120,7 +174,22 @@ public class CircularSinglyLinkedList<T> {
      * @throws java.util.NoSuchElementException if the list is empty
      */
     public T removeFromBack() {
-        return null;
+        if (head == null) {
+            return null;
+        }
+        if (size == 0) {
+            throw new NoSuchElementException("This list is empty, so no data available to remove!");
+        }
+        CircularSinglyLinkedListNode<T> curr = head;
+        if (size == 1) {
+            T temp = head.getData();
+            size--;
+            head = null;
+            return temp;
+        } else {
+            return this.removeAtIndex(size - 1);
+        }
+
     }
 
     /**
@@ -133,7 +202,20 @@ public class CircularSinglyLinkedList<T> {
      * @throws java.lang.IndexOutOfBoundsException if index < 0 or index >= size
      */
     public T get(int index) {
-        return null;
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Index is out of bound of the list!");
+        }
+        if (index == 0) {
+            T item = head.getData();
+            return item;
+        } else {
+            CircularSinglyLinkedListNode<T> curr = head;
+            for (int i = 0; i < index; i++) {
+                curr = curr.getNext();
+            }
+            return curr.getData();
+        }
+
     }
 
     /**
@@ -144,7 +226,7 @@ public class CircularSinglyLinkedList<T> {
      * @return true if empty, false otherwise
      */
     public boolean isEmpty() {
-        return true;
+        return head == null;
     }
 
     /**
@@ -155,7 +237,8 @@ public class CircularSinglyLinkedList<T> {
      * Must be O(1).
      */
     public void clear() {
-        return;
+        size = 0;
+        head = null;
     }
 
     /**
@@ -172,7 +255,26 @@ public class CircularSinglyLinkedList<T> {
      * @throws java.util.NoSuchElementException   if data is not found
      */
     public T removeLastOccurrence(T data) {
-        return null;
+        if (data  == null) {
+            throw new NoSuchElementException("The data is not found/or cannot be null!");
+        }
+        if (head == null) {
+            return null;
+        }
+        int lastIndex = -1;
+        CircularSinglyLinkedListNode<T> curr = head;
+        for (int i = 0; i < size; i++) {
+            if (curr.getData().equals(data)) {
+                lastIndex = i;
+            }
+            curr = curr.getNext();
+        }
+        if (lastIndex == -1) {
+            throw new NoSuchElementException("The data given was not found! Try again!");
+        }
+        T removedData = this.get(lastIndex);
+        this.removeAtIndex(lastIndex);
+        return removedData;
     }
 
     /**
