@@ -145,13 +145,12 @@ public class CircularSinglyLinkedList<T> {
      * @throws java.util.NoSuchElementException if the list is empty
      */
     public T removeFromFront() {
-        if (head == null) {
+        /**if (head == null) {
             return null;
-        }
+        }*/
         if (size == 0) {
             throw new NoSuchElementException("This list is empty, so no data available to remove!");
-        }
-        if (size == 1) {
+        } else if (size == 1) {
             T temp = head.getData();
             head = null;
             size--;
@@ -174,9 +173,9 @@ public class CircularSinglyLinkedList<T> {
      * @throws java.util.NoSuchElementException if the list is empty
      */
     public T removeFromBack() {
-        if (head == null) {
+        /**if (head == null) {
             return null;
-        }
+        }*/
         if (size == 0) {
             throw new NoSuchElementException("This list is empty, so no data available to remove!");
         }
@@ -189,7 +188,6 @@ public class CircularSinglyLinkedList<T> {
         } else {
             return this.removeAtIndex(size - 1);
         }
-
     }
 
     /**
@@ -255,27 +253,29 @@ public class CircularSinglyLinkedList<T> {
      * @throws java.util.NoSuchElementException   if data is not found
      */
     public T removeLastOccurrence(T data) {
-        if (data  == null) {
-            throw new NoSuchElementException("The data is not found/or cannot be null!");
+        if (data == null) {
+            throw new IllegalArgumentException("The data is not found/or cannot be null!");
         }
-        if (head == null) {
-            return null;
-        }
-        int lastIndex = -1;
-        CircularSinglyLinkedListNode<T> curr = head;
+        CircularSinglyLinkedListNode curr = head;
+        int index = 0;
+        CircularSinglyLinkedListNode a = new CircularSinglyLinkedListNode(null);
+        CircularSinglyLinkedListNode b = new CircularSinglyLinkedListNode(null);
         for (int i = 0; i < size; i++) {
-            if (curr.getData().equals(data)) {
-                lastIndex = i;
+            if (curr.getNext().getData().equals(data)) {
+                a = curr;
+                b = curr.getNext();
             }
             curr = curr.getNext();
         }
-        if (lastIndex == -1) {
-            throw new NoSuchElementException("The data given was not found! Try again!");
+        try {
+            a.setNext(a.getNext().getNext());
+            size--;
+            return (T) b.getData();
+        } catch (Exception e) {
+            throw new NoSuchElementException("The data does not exist!");
         }
-        T removedData = this.get(lastIndex);
-        this.removeAtIndex(lastIndex);
-        return removedData;
     }
+
 
     /**
      * Returns an array representation of the linked list.
