@@ -1,3 +1,5 @@
+import java.util.NoSuchElementException;
+
 /**
  * Your implementation of an ArrayStack.
  *
@@ -29,7 +31,8 @@ public class ArrayStack<T> {
      * Constructs a new ArrayStack.
      */
     public ArrayStack() {
-
+        backingArray = (T[]) (new Object[INITIAL_CAPACITY]);
+        size = 0;
     }
 
     /**
@@ -44,6 +47,18 @@ public class ArrayStack<T> {
      * @throws java.lang.IllegalArgumentException if data is null
      */
     public void push(T data) {
+        if (data == null) {
+            throw new IllegalArgumentException("The input data is null!");
+        }
+        if (size == backingArray.length) {
+            T[] tempArr = (T[]) (new Object[backingArray.length * 2]);
+
+            for (int i = 0; i < backingArray.length; i++) {
+                tempArr[i] = backingArray[i];
+            }
+            backingArray = tempArr;
+        }
+        backingArray[size++] = data;
 
     }
 
@@ -60,7 +75,12 @@ public class ArrayStack<T> {
      * @throws java.util.NoSuchElementException if the stack is empty
      */
     public T pop() {
-        return null;
+        if (size == 0) {
+            throw new NoSuchElementException("The stack is empty or data cannot be null!");
+        }
+        T elementOnTheTop = peek();
+        backingArray[--size] = null;
+        return elementOnTheTop;
     }
 
     /**
@@ -72,7 +92,10 @@ public class ArrayStack<T> {
      * @throws java.util.NoSuchElementException if the stack is empty
      */
     public T peek() {
-        return null;
+        if (size == 0) {
+            throw new NoSuchElementException("The stack is empty or data cannot be null!");
+        }
+        return backingArray[size - 1];
     }
 
     /**

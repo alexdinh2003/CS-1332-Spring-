@@ -1,3 +1,5 @@
+import java.util.NoSuchElementException;
+
 /**
  * Your implementation of a LinkedQueue. It should NOT be circular.
  *
@@ -28,11 +30,22 @@ public class LinkedQueue<T> {
      *
      * Must be O(1).
      *
+     *
      * @param data the data to add to the back of the queue
      * @throws java.lang.IllegalArgumentException if data is null
      */
     public void enqueue(T data) {
-
+        if (data == null) {
+            throw new IllegalArgumentException("The data is null!");
+        }
+        LinkedNode<T> backQueue = new LinkedNode<>(data);
+        if (size == 0) {
+            head = backQueue;
+        } else {
+            tail.setNext(backQueue);
+        }
+        tail = backQueue;
+        size++;
     }
 
     /**
@@ -44,7 +57,15 @@ public class LinkedQueue<T> {
      * @throws java.util.NoSuchElementException if the queue is empty
      */
     public T dequeue() {
-        return null;
+        if (size == 0) {
+            throw new NoSuchElementException("The queue is empty!");
+        }
+        T temp = head.getData();
+        head = head.getNext();
+        if (--size == 0) {
+            tail = null;
+        }
+        return temp;
     }
 
     /**
