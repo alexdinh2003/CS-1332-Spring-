@@ -1,13 +1,17 @@
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Queue;
+import java.util.LinkedList;
 
 /**
  * Your implementation of a BST.
  *
- * @author YOUR NAME HERE
+ * @author HOANG GIA NGHI, DINH [FIRST, LAST]
  * @version 1.0
- * @userid YOUR USER ID HERE (i.e. gburdell3)
- * @GTID YOUR GT ID HERE (i.e. 900000000)
+ * @userid ndinh31 (i.e. gburdell3)
+ * @GTID 903733512 (i.e. 900000000)
  *
  * Collaborators: LIST ALL COLLABORATORS YOU WORKED WITH HERE
  *
@@ -49,7 +53,16 @@ public class BST<T extends Comparable<? super T>> {
      *                                            is null
      */
     public BST(Collection<T> data) {
+        if (data == null) {
+            throw new IllegalArgumentException("The data passed in Collections is null");
+        }
 
+        for (T curr : data) {
+            if (curr == null) {
+                throw new IllegalArgumentException("Any element in data is null. Please pass data in!");
+            }
+            add(curr);
+        }
     }
 
     /**
@@ -69,7 +82,33 @@ public class BST<T extends Comparable<? super T>> {
      * @throws java.lang.IllegalArgumentException if data is null
      */
     public void add(T data) {
+        if (data == null) {
+            throw new IllegalArgumentException("Data is null. Please pass the data in");
+        }
 
+        root = rAdd(data, root);
+    }
+
+    /**
+     * Private recursive helper function that adds a node onto the BST in O(log n) time.
+     *
+     * @param data The data to add to the tree.
+     * @param currentNode The current node in the BST being compared.
+     * @return The current node that was recursively passed in or pointer reinforcement
+     */
+
+    private BSTNode<T> rAdd(T data, BSTNode<T> currentNode) {
+        //a) If you reach a null node → add the data here
+        //b) If you reach a match → do nothing (no duplicates)
+        if (currentNode == null) {
+            this.size++;
+            return new BSTNode<>(data);
+        } else if (data.compareTo(currentNode.getData()) < 0) {
+            currentNode.setLeft(rAdd(data, currentNode.getLeft()));
+        } else if (data.compareTo(currentNode.getData()) > 0) {
+            currentNode.setRight(rAdd(data, currentNode.getRight()));
+        }
+        return currentNode;
     }
 
     /**
@@ -100,7 +139,81 @@ public class BST<T extends Comparable<? super T>> {
      * @throws java.util.NoSuchElementException   if the data is not in the tree
      */
     public T remove(T data) {
+        if (data == null) {
+            throw new IllegalArgumentException("The passing data is null");
+        }
+        BSTNode<T> dummy = new BSTNode<>(null);
+        root = rRemove(this.root, data, dummy);
+        return dummy.getData();
+    }
 
+    /**
+     * A private recursive help method to remove and return the data
+     *
+     * @param node current node of subtree
+     * @param data The data of type T was being removed
+     * @param dummy the placeholder node
+     * @throw java.util.NoSuchElementException if the data is not in the tree
+     * @return pointer reinforcement
+     */
+
+    private BSTNode<T> rRemove(BSTNode<T> node, T data, BSTNode<T> dummy) {
+        if (node == null) {
+            throw new NoSuchElementException(data + " is not located in this tree.");
+        } else if (node.getData().compareTo(data) > 0) {
+            // check if it is less or greater than 0
+            node.setLeft(rRemove(node.getLeft(), data, dummy));
+        } else if (node.getData().compareTo(data) < 0) {
+            node.setRight(rRemove(node.getRight(), data, dummy));
+        } else {
+            dummy.setData(node.getData());
+            size--;
+
+            if (node.getLeft() == null && node.getRight() == null) {
+                return null;
+            } else if (node.getLeft() == null) {
+                //One child remove case
+                //Set the parent’s pointer to the node to the node’s child
+                return node.getRight();
+            } else if (node.getRight() == null) {
+                return node.getLeft();
+            } else {
+                //dummy2 = successor
+                BSTNode<T> dummy2 = new BSTNode<>(null);
+                node.setRight(removeSuccessor(node.getRight(), dummy2));
+                node.setData(dummy2.getData());
+            }
+        }
+        return node;
+    }
+
+    /**
+     * Helper method to search for nearest successor of subtree
+     * Get successor and remove the node
+     *
+     * @param currentNode current root of subtree
+     * @param dummy placeholder remove node/ hold successor data
+     * @return nearest successor of subtree / subtree on the right of removed node
+     */
+
+    private BSTNode<T> removeSuccessor(BSTNode<T> currentNode, BSTNode<T> dummy) {
+        //Instead of removing the node itself, we’ll replace the node’s data
+        //with the predecessor or successor and remove THAT node:
+        //  1) Predecessor - largest value still smaller than the current
+        //  value; go one to the left, then as far right as possible
+        //  (2) Successor - smallest value still larger that the current
+        //  value; go one to the right, then as far left as possible
+        //  We’ll delegate the removal of an actual node to the node
+        //  containing the predecessor or successor since these will always
+        //  be 0 or 1 child remove cases
+
+        if (currentNode.getLeft() == null) {
+            dummy.setData(currentNode.getData());
+            return currentNode.getRight();
+        } else {
+            currentNode.setLeft(removeSuccessor(currentNode.getLeft(), dummy));
+        }
+        return currentNode;
     }
 
     /**
@@ -121,7 +234,31 @@ public class BST<T extends Comparable<? super T>> {
      * @throws java.util.NoSuchElementException   if the data is not in the tree
      */
     public T get(T data) {
+        if (data == null) {
+            throw new IllegalArgumentException("The data accessing is null");
+        }
 
+        BSTNode<T> searchNode = rSearch(this.root, data);
+        if (searchNode == null) {
+            throw new NoSuchElementException("The data is not in the BST!");
+        } else {
+            return searchNode.getData();
+        }
+    }
+
+    /**
+     * private recursive helper method to search for an element in BST
+     * @param currentNode the current node in BST
+     * @param targetData The target data to find
+     * @return the data store in BST
+     */
+    private BSTNode<T> rSearch(BSTNode<T> currentNode, T targetData) {
+        if (currentNode == null || currentNode.getData().equals(targetData)) {
+            return currentNode;
+        } else if (currentNode.getData().compareTo(targetData) < 0) {
+            return rSearch(currentNode.getRight(), targetData);
+        }
+        return rSearch(currentNode.getLeft(), targetData);
     }
 
     /**
@@ -140,7 +277,10 @@ public class BST<T extends Comparable<? super T>> {
      * @throws java.lang.IllegalArgumentException if data is null
      */
     public boolean contains(T data) {
-
+        if (data == null) {
+            throw new IllegalArgumentException("The data is null.");
+        }
+        return rSearch(this.root, data) != null;
     }
 
     /**
@@ -153,7 +293,31 @@ public class BST<T extends Comparable<? super T>> {
      * @return the preorder traversal of the tree
      */
     public List<T> preorder() {
+        List<T> list = new ArrayList<>();
+        rPreorder(list, root);
+        return list;
 
+    }
+
+    /**
+     * A private recursive helper method to traverse the BST in preorder format
+     *
+     * @param currentNode current node in BST
+     * @param listNode a complete list of nodes in the subtree in preorder
+     */
+
+    private void rPreorder(List<T> listNode, BSTNode<T> currentNode) {
+        // if current node is null → return
+        if (currentNode == null) {
+            return;
+        }
+
+        // (a) look at data (record, print it)
+        // (b) recurse left
+        // (c) recurse right
+        listNode.add(currentNode.getData());
+        rPreorder(listNode, currentNode.getLeft());
+        rPreorder(listNode, currentNode.getRight());
     }
 
     /**
@@ -166,7 +330,30 @@ public class BST<T extends Comparable<? super T>> {
      * @return the inorder traversal of the tree
      */
     public List<T> inorder() {
+        List<T> list = new ArrayList<>();
+        rInorder(list, root);
+        return list;
+    }
 
+    /**
+     * A private recursive helper method to traverse the BST in inorder format
+     *
+     * @param currentNode current node in BST
+     * @param listNode a complete list of nodes in the subtree in inorder
+     */
+
+    private void rInorder(List<T> listNode, BSTNode<T> currentNode) {
+        // if current node is null → return
+        if (currentNode == null) {
+            return;
+        }
+
+        // (a) recurse left
+        // (b) look at data (record, print it)
+        // (c) recurse right
+        rInorder(listNode, currentNode.getLeft());
+        listNode.add(currentNode.getData());
+        rInorder(listNode, currentNode.getRight());
     }
 
     /**
@@ -179,9 +366,31 @@ public class BST<T extends Comparable<? super T>> {
      * @return the postorder traversal of the tree
      */
     public List<T> postorder() {
-
+        List<T> list = new ArrayList<>();
+        rPostorder(list, root);
+        return list;
     }
 
+    /**
+     * A private recursive helper method to traverse the BST in inorder format
+     *
+     * @param currentNode current node in BST
+     * @param listNode a complete list of nodes in the subtree in inorder
+     */
+
+    private void rPostorder(List<T> listNode, BSTNode<T> currentNode) {
+        // if current node is null → return
+        if (currentNode == null) {
+            return;
+        }
+
+        // (a) recurse left
+        // (b) recurse right
+        // (c) look at data (record, print it)
+        rPostorder(listNode, currentNode.getLeft());
+        rPostorder(listNode, currentNode.getRight());
+        listNode.add(currentNode.getData());
+    }
     /**
      * Generate a level-order traversal of the tree.
      *
@@ -196,7 +405,25 @@ public class BST<T extends Comparable<? super T>> {
      * @return the level order traversal of the tree
      */
     public List<T> levelorder() {
+        //(1) Add the root to the queue
+        //(2) While the queue is not empty →
+        //(a) Remove one node from the queue
+        //(b) Enqueue its left and right children (in that order)
 
+        List<T> list = new ArrayList<>();
+        Queue<BSTNode<T>> queue = new LinkedList<>();
+        queue.add(this.root);
+
+        while (!queue.isEmpty()) {
+            BSTNode<T> currentNode = queue.remove();
+            if (currentNode != null) {
+                list.add(currentNode.getData());
+                queue.add(currentNode.getLeft());
+                queue.add(currentNode.getRight());
+            }
+        }
+
+        return list;
     }
 
     /**
@@ -209,10 +436,28 @@ public class BST<T extends Comparable<? super T>> {
      *
      * Must be O(n).
      *
-     * @return the height of the root of the tree, -1 if the tree is empty
+     * @return height at current node - 1
      */
     public int height() {
+        if (root == null) {
+            return -1;
+        }
+        return rFindHeight(root);
+    }
 
+    /**
+     * Private recursive method to find the height of the tree
+     *
+     * @param currentNode current node in the BST
+     * @return the height of the root of the tree
+     */
+
+    private int rFindHeight(BSTNode<T> currentNode) {
+        if (currentNode == null) {
+            return -1;
+        }
+
+        return Math.max(rFindHeight(currentNode.getLeft()), rFindHeight(currentNode.getRight())) + 1;
     }
 
     /**
@@ -223,7 +468,8 @@ public class BST<T extends Comparable<? super T>> {
      * Must be O(1).
      */
     public void clear() {
-
+        root = null;
+        size = 0;
     }
 
     /**
@@ -260,9 +506,35 @@ public class BST<T extends Comparable<? super T>> {
      * @throws java.lang.IllegalArgumentException if k < 0 or k > size
      */
     public List<T> kLargest(int k) {
+        if (k < 0 || k > size) {
+            throw new IllegalArgumentException(String.format("You must access [0, %d] elements.", size));
+        }
+        List<T> kElements = new ArrayList<>();
+        rInOrder(root, k, kElements);
 
+        return kElements;
     }
 
+    /**
+     * Private recursive helper method to traverse in reverse inorder
+     *
+     * @param currentNode the current node in the tree
+     * @param k the number of elements that add to the list
+     * @param list List of maximum k elements
+     */
+
+    private void rInOrder(BSTNode<T> currentNode, int k, List<T> list) {
+        if (currentNode == null) {
+            return;
+        }
+        if (list.size() < k) {
+            rInOrder(currentNode.getRight(), k, list);
+            if (list.size() < k) {
+                list.add(0, currentNode.getData());
+                rInOrder(currentNode.getLeft(), k, list);
+            }
+        }
+    }
 
     /**
      * Returns the root of the tree.
