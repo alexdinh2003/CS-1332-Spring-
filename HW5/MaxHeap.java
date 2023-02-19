@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 /**
  * Your implementation of a MaxHeap.
@@ -34,7 +35,8 @@ public class MaxHeap<T extends Comparable<? super T>> {
      * The backing array should have an initial capacity of INITIAL_CAPACITY.
      */
     public MaxHeap() {
-
+        backingArray = (T[]) new Comparable[INITIAL_CAPACITY];
+        size = 0;
     }
 
     /**
@@ -63,7 +65,60 @@ public class MaxHeap<T extends Comparable<? super T>> {
      *                                            is null
      */
     public MaxHeap(ArrayList<T> data) {
+        if (data == null) {
+            throw new IllegalArgumentException("The data cannot be null!");
+        }
+        backingArray = (T[]) new Comparable[data.size() * 2 + 1];
+        size = data.size();
 
+        for (int i = 0; i < size; i++) {
+            if (data.get(i) == null) {
+                throw new IllegalArgumentException("Data in the inputted Arraylist cannot be null.");
+            }
+            backingArray[i + 1] = data.get(i);
+        }
+
+        for (int i = size / 2; i > 0; i--) {
+            downHeap(i);
+        }
+    }
+
+    /**
+     * Private recursive method to make sure that the elements of MaxHeap are in the correct order
+     *
+     * @param index index of data that downHeap is applied
+     */
+
+    private void downHeap(int index) {
+        //takes in a starting index, and swaps nodes if the parent is smaller than the child,
+        //or if the left child is greater than the right node.
+
+        while (size >= index * 2) {
+            int childIndex = index * 2;
+            if (childIndex < size && !(backingArray[childIndex].compareTo(backingArray[childIndex + 1]) > 0)) {
+                childIndex++;
+            }
+
+            if (backingArray[index].compareTo(backingArray[childIndex]) > 0) {
+                break;
+            }
+            swap(index, childIndex);
+            index = childIndex;
+        }
+
+    }
+
+    /**
+     * Helper method to swap the data at the two indexes provided
+     *
+     * @param curr current data the methods needs to swap
+     * @param swapIndex index of the next data that needs to be swapped
+     */
+
+    private void swap(int curr, int swapIndex) {
+        T tmp = backingArray[curr];
+        backingArray[curr] = backingArray[swapIndex];
+        backingArray[swapIndex] = tmp;
     }
 
     /**
@@ -77,7 +132,33 @@ public class MaxHeap<T extends Comparable<? super T>> {
      * @throws java.lang.IllegalArgumentException if data is null
      */
     public void add(T data) {
+        // Time complexity: O(log n)
+        // Add at the bottom up-heap or heapify
+        // Add to the next spot in the array to maintain completeness
+        // Up-Heap starting from the new data to fix order property:
+        // a) Compare the data with the parent
+        // b) Swap the data with the parent if necessary
+        // c) Continue until the top of the heap is reached or until no swap is needed
+        if (data == null) {
+            throw new IllegalArgumentException("The data cannot be null");
+        }
 
+        if (size >= backingArray.length) {
+            T[] newArray = (T[]) new Comparable[backingArray.length * 2];
+            for (int i = 1; i < backingArray.length; i++) {
+                newArray[i] = backingArray[i];
+            }
+            backingArray = newArray;
+        }
+        size++;
+        backingArray[size] = data;
+
+        //curr/2 = parent
+        int curr = size;
+        while (curr != 1 && backingArray[curr].compareTo(backingArray[curr / 2]) > 0) {
+            swap(curr, curr / 2);
+            curr = curr / 2;
+        }
     }
 
     /**
@@ -91,7 +172,23 @@ public class MaxHeap<T extends Comparable<? super T>> {
      * @throws java.util.NoSuchElementException if the heap is empty
      */
     public T remove() {
-        return null;
+        // Remove from the root Down-heap
+        // Move the last element of the heap to replace the root
+        // -> Delete the last element
+        // Down-Heap starting from the root to fix the order property:
+        // a) If two children, compare data with higher priority child
+        // b) If one child (must be left), compare data with the child
+        // c) Swap if necessary based on comparison
+        // d) Continue down the heap until no swap is made or a leaf is reached
+        if (size == 0) {
+            throw new NoSuchElementException("The heap is empty");
+        }
+        T removedData = backingArray[1];
+        backingArray[1] = backingArray[size];
+        backingArray[size] = null;
+        size--;
+        downHeap(1);
+        return removedData;
     }
 
     /**
@@ -101,7 +198,10 @@ public class MaxHeap<T extends Comparable<? super T>> {
      * @throws java.util.NoSuchElementException if the heap is empty
      */
     public T getMax() {
-        return null;
+        if (size == 0) {
+            throw new NoSuchElementException("The heap is empty!");
+        }
+        return backingArray[1];
     }
 
     /**
@@ -110,7 +210,7 @@ public class MaxHeap<T extends Comparable<? super T>> {
      * @return true if empty, false otherwise
      */
     public boolean isEmpty() {
-        return false;
+        return size == 0;
     }
 
     /**
@@ -120,7 +220,8 @@ public class MaxHeap<T extends Comparable<? super T>> {
      * resets the size.
      */
     public void clear() {
-
+        size = 0;
+        backingArray = (T[]) new Comparable[INITIAL_CAPACITY];
     }
 
     /**
