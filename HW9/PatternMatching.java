@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,10 +34,51 @@ public class PatternMatching {
      */
     public static List<Integer> kmp(CharSequence pattern, CharSequence text,
                                     CharacterComparator comparator) {
-        if (pattern == null) {
-            throw new IllegalArgumentException("Error, the pattern is null or ");
+        // Best/worst case: O (m + n)
+        if (pattern == null || pattern.length() == 0) {
+            throw new IllegalArgumentException("Error, the pattern is null or has length 0");
         }
-        return null;
+        if (text == null || comparator == null) {
+            throw new IllegalArgumentException("Error, text or comparator is null");
+        }
+        // Create arraylist
+        List<Integer> matchStartIdxList = new ArrayList<>();
+        if (pattern.length() > text.length()) {
+            return  matchStartIdxList;
+        }
+
+        if (text.length() == 1) {
+            if (comparator.compare(text.charAt(0), pattern.charAt(0)) == 0) {
+                matchStartIdxList.add(0);
+            }
+            return matchStartIdxList;
+        }
+
+        // initialize the failure table
+        int[] failureTable = buildFailureTable(pattern, comparator);
+
+        int m = pattern.length();
+        int n = text.length();
+        //pattern length
+        int i = 0;
+        int j = 0;
+
+        while (i <= (n - m)) {
+            while ((j < m) && (comparator.compare(text.charAt(i + j), pattern.charAt(j)) == 0)) {
+                j++;
+            }
+            if (j == 0) {
+                i++;
+            } else {
+                if (j == m) {
+                    matchStartIdxList.add(i);
+                }
+                int shiftNextAlignment = failureTable[j - 1];
+                i = i + j - shiftNextAlignment;
+                j = shiftNextAlignment;
+            }
+        }
+        return matchStartIdxList;
     }
 
     /**
@@ -63,7 +106,46 @@ public class PatternMatching {
      */
     public static int[] buildFailureTable(CharSequence pattern,
                                           CharacterComparator comparator) {
-        return null;
+        //p = pattern, i = index in prefix, j = index in pattern, f[] = failure table
+        //2. i = 0, j = 1, f[0] = 0
+        //3. while i < m (length of pattern)
+        //  a) case 1: p[i] == p[j] → characters match
+        //      (1) f[j] = i+1
+        //      (2) i++, j++
+        //  b) case 2: p[i] != p[j] && i = 0 → characters do not match, and we
+        //  have not built up a prefix
+        //      (1) f[j] = 0
+        //      (2) j++
+        //  c) case 3: p[i] != p[j] && i > 0 → characters do not match, but we’ve
+        //   built up a prefix
+        //      (1) reset i = f[i-1] (if the characters don’t match, we can’t
+        //          increase the length of the prefix, so we try a shorter prefix)
+        if (pattern == null || comparator == null) {
+            throw new IllegalArgumentException("Error, the pattern or comparator is null.");
+        }
+
+        int[] failureTable = new int[pattern.length()];
+
+        int i = 0;
+        int j = 1;
+        failureTable[0] = 0;
+
+        while (j < pattern.length()) {
+            if (comparator.compare(pattern.charAt(i), pattern.charAt(j)) == 0) {
+                i++;
+                failureTable[j] = i;
+
+                j++;
+            } else if (i == 0) {
+                failureTable[j] = 0;
+                j++;
+            } else {
+                i = failureTable[i - 1];
+            }
+        }
+
+        return failureTable;
+
     }
 
     /**
@@ -87,7 +169,55 @@ public class PatternMatching {
     public static List<Integer> boyerMoore(CharSequence pattern,
                                            CharSequence text,
                                            CharacterComparator comparator) {
-        return null;
+        //Align index 0 of the pattern with index 0 of the text, start comparing
+        //characters at the back of the pattern
+        //  a) If they match → decrement and compare again
+        //  b) If they do not match → query the last occurrence table for the
+        //  character in the text that mismatched
+        //      (1) If the query returns a non-negative value that has not yet
+        //      been passed, realign the pattern so the index of the last
+        //      occurrence aligns with the mismatch in the text
+        //      (2) If the query returns a non-negative value that has already
+        //      been passed (eg. the last occurrence index is greater than
+        //      the one we’re currently at), shift the pattern to the right by 1
+        //      (3) If the query returns -1, shift the pattern over this character
+        if (pattern == null || pattern.length() == 0) {
+            throw new IllegalArgumentException("Error, the pattern is null or has length 0");
+        }
+        if (text == null || comparator == null) {
+            throw new IllegalArgumentException("Error, text or comparator is null");
+        }
+
+        List<Integer> matchIndices = new ArrayList<>();
+        int m = pattern.length();
+        int n = text.length();
+
+        if (m > n) {
+            return matchIndices;
+        }
+
+        Map<Character, Integer> lastTable = buildLastTable(pattern);
+        int i = 0;
+        while (i <= n - m) {
+            int j = m - 1;
+            while (j >= 0 && comparator.compare(text.charAt(i + j), pattern.charAt(j)) == 0) {
+                j--;
+            }
+
+            // match!
+            if (j == -1) {
+                matchIndices.add(i);
+                i++;
+            } else {
+                int shiftIndex = lastTable.getOrDefault(text.charAt(i + j), -1);
+                if (shiftIndex < j) {
+                    i = i + (j - shiftIndex);
+                } else {
+                    i++;
+                }
+            }
+        }
+        return matchIndices;
     }
 
     /**
@@ -117,7 +247,15 @@ public class PatternMatching {
      * @throws java.lang.IllegalArgumentException if the pattern is null
      */
     public static Map<Character, Integer> buildLastTable(CharSequence pattern) {
-        return null;
+        if (pattern == null) {
+            throw new IllegalArgumentException("Error, the pattern is null");
+        }
+        // lastTable <- map from character to integer
+        Map<Character, Integer> lastTable = new HashMap<>();
+        for (int i = 0; i < pattern.length(); i++) {
+            lastTable.put(pattern.charAt(i), i);
+        }
+        return lastTable;
     }
 
     /**
