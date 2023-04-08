@@ -48,9 +48,36 @@ public class PatternMatchingStudentTest {
 
     private CharacterComparator comparator;
 
+    //Text source: https://www.lipsum.com/ -> for extra credit
+    private String longtext = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque "
+            + "pulvinar lorem id neque volutpat lobortis consectetur";
+    private String longtextPattern = "consectetur";
+
+    private String test4Pattern;
+    private String test4Text;
+    private List<Integer> test4Answer;
+
+    private String bm1Pattern;
+    private String bm1Text;
+    private List<Integer> bm1Answer;
 
     @Before
     public void setUp() {
+        test4Pattern = "aab";
+        test4Text = "aabcaabdaab";
+        test4Answer = new ArrayList<>();
+        test4Answer.add(0);
+        test4Answer.add(4);
+        test4Answer.add(8);
+
+        bm1Pattern = "aa";
+        bm1Text = "aaaaab";
+        bm1Answer = new ArrayList<>();
+        bm1Answer.add(0);
+        bm1Answer.add(1);
+        bm1Answer.add(2);
+        bm1Answer.add(3);
+
         kmpPattern = "ababa";
         kmpText = "ababaaababa";
         kmpNoMatch = "ababbaba";
@@ -208,7 +235,7 @@ public class PatternMatchingStudentTest {
         /*
             pattern: sell
             text: She sells seashells by the seashore.
-            indices: 4
+            indices:
             expected total comparisons: 20
          */
         assertEquals(sellAnswer,
@@ -346,5 +373,396 @@ public class PatternMatchingStudentTest {
                 comparator.getComparisonCount() != 0);
         assertEquals("Comparison count was " + comparator.getComparisonCount()
                 + ". Should be 5.", 5, comparator.getComparisonCount());
+    }
+
+    // additional test for extra credits
+    @Test(timeout = TIMEOUT)
+    public void testBoyerMooreGalil() {
+        /*
+            pattern: abacab
+            text: abacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabac
+         */
+        List<Integer> arr = new ArrayList<>();
+        for (int i = 0; i <= 68; i += 4) {
+            arr.add(i);
+        }
+
+
+        assertEquals(arr,
+                PatternMatching.boyerMooreGalilRule("abacab",
+                        "abacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabac", comparator));
+        // System.out.println(comparator.getComparisonCount());
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 80.", 80, comparator.getComparisonCount());
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBoyerMooreCompareGalil() {
+        /*
+            pattern: abacab
+            text: abacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabac
+         */
+        List<Integer> arr = new ArrayList<>();
+        for (int i = 0; i <= 68; i += 4) {
+            arr.add(i);
+        }
+
+        assertEquals(arr,
+                PatternMatching.boyerMoore("abacab",
+                        "abacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabacabac", comparator));
+        //  System.out.println(comparator.getComparisonCount());
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 144.", 144, comparator.getComparisonCount());
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBoyerMooreGalil2() {
+        /*
+            pattern: ab
+            text: abababababababababababababababababababababab
+         */
+        List<Integer> arr = new ArrayList<>();
+        for (int i = 0; i <= 42; i += 2) {
+            arr.add(i);
+        }
+
+        assertEquals(arr,
+                PatternMatching.boyerMooreGalilRule("ab",
+                        "abababababababababababababababababababababab", comparator));
+        // System.out.println(comparator.getComparisonCount());
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 45.", 45, comparator.getComparisonCount());
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBoyerMooreCompareGalil2() {
+        /*
+            pattern: ab
+            text: abababababababababababababababababababababab
+         */
+        List<Integer> arr = new ArrayList<>();
+        for (int i = 0; i <= 42; i += 2) {
+            arr.add(i);
+        }
+
+        assertEquals(arr,
+                PatternMatching.boyerMoore("ab",
+                        "abababababababababababababababababababababab", comparator));
+        // System.out.println(comparator.getComparisonCount());
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 65.", 65, comparator.getComparisonCount());
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBoyerMooreGalil3() {
+        /*
+            pattern: abc
+            text: abcabcdefafjasdjabcabcdeabdabc
+         */
+        List<Integer> arr = new ArrayList<>();
+        arr.add(0);
+        arr.add(3);
+        arr.add(16);
+        arr.add(19);
+        arr.add(27);
+
+        assertEquals(arr,
+                PatternMatching.boyerMooreGalilRule("abc",
+                        "abcabcdefafjasdjabcabcdeabdabc", comparator));
+        // System.out.println(comparator.getComparisonCount());
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 23.", 23, comparator.getComparisonCount());
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBoyerMooreCompareGalil3() {
+        /*
+            pattern: abc
+            text: abcabcdefafjasdjabcabcdeabdabc
+         */
+        List<Integer> arr = new ArrayList<>();
+        arr.add(0);
+        arr.add(3);
+        arr.add(16);
+        arr.add(19);
+        arr.add(27);
+
+        assertEquals(arr,
+                PatternMatching.boyerMoore("abc",
+                        "abcabcdefafjasdjabcabcdeabdabc", comparator));
+        // System.out.println(comparator.getComparisonCount());
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 25.", 25, comparator.getComparisonCount());
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBoyerMooreDontGoBackwards() {
+        /*
+            pattern: ababa
+            text: abababaabababa
+         */
+        List<Integer> arr = new ArrayList<>();
+        arr.add(0);
+        arr.add(2);
+        arr.add(7);
+        arr.add(9);
+
+        assertEquals(arr,
+                PatternMatching.boyerMoore("ababa",
+                        "abababaabababa", comparator));
+        // System.out.println(comparator.getComparisonCount());
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 30.", 30, comparator.getComparisonCount());
+    }
+    @Test(timeout = TIMEOUT)
+    public void testBoyerMooreGalilDontGoBackwards() {
+        /*
+            pattern: ababa
+            text: abababaabababa
+         */
+        List<Integer> arr = new ArrayList<>();
+        arr.add(0);
+        arr.add(2);
+        arr.add(7);
+        arr.add(9);
+
+        assertEquals(arr,
+                PatternMatching.boyerMooreGalilRule("ababa",
+                        "abababaabababa", comparator));
+        //System.out.println(comparator.getComparisonCount());
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 24.", 24, comparator.getComparisonCount());
+    }
+
+    /**
+     * Shravan Cheekati
+     */
+    //EXCEPTION TESTS
+    //KMP tests
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testKMPExceptionNullPattern() {
+        PatternMatching.kmp(null, test4Text, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testKMPExceptionPattern0len() {
+        CharSequence pattern = "";
+        PatternMatching.kmp(pattern, test4Text, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testKMPExceptionTextnull() {
+        PatternMatching.kmp(kmpPattern, null, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testKMPExceptionComparatornull() {
+        PatternMatching.kmp(kmpPattern, kmpText, null);
+    }
+
+    //KMP - bft tests
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testKMPbftExceptionPatternnull() {
+        PatternMatching.buildFailureTable(null, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testKMPbftExceptionComparatornull() {
+        PatternMatching.buildFailureTable(kmpPattern, null);
+    }
+
+
+    //BM tests
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testBMExceptionNullPattern() {
+        PatternMatching.boyerMoore(null, test4Text, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testBMExceptionPattern0len() {
+        CharSequence pattern = "";
+        PatternMatching.boyerMoore(pattern, test4Text, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testBMExceptionTextnull() {
+        PatternMatching.boyerMoore(bm1Pattern, null, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testBMExceptionComparatornull() {
+        PatternMatching.boyerMoore(bm1Pattern, kmpText, null);
+    }
+
+    //BM - lot tests
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testBMlotExceptionNullPattern() {
+        PatternMatching.buildLastTable(null);
+    }
+
+    //RK tests
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testRKExceptionNullPattern() {
+        PatternMatching.rabinKarp(null, test4Text, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testRKExceptionPattern0len() {
+        CharSequence pattern = "";
+        PatternMatching.rabinKarp(pattern, test4Text, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testRKExceptionTextnull() {
+        PatternMatching.rabinKarp(kmpPattern, null, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testRKExceptionComparatornull() {
+        PatternMatching.rabinKarp(kmpPattern, kmpText, null);
+    }
+
+    //BM-galil tests
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testBMGExceptionNullPattern() {
+        PatternMatching.boyerMooreGalilRule(null, test4Text, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testBMGExceptionPattern0len() {
+        CharSequence pattern = "";
+        PatternMatching.boyerMooreGalilRule(pattern, test4Text, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testBMGExceptionTextnull() {
+        PatternMatching.boyerMooreGalilRule(bm1Pattern, null, comparator);
+    }
+    @Test(timeout = TIMEOUT, expected = IllegalArgumentException.class)
+    public void testBMGExceptionComparatornull() {
+        PatternMatching.boyerMooreGalilRule(bm1Pattern, kmpText, null);
+    }
+
+    //END OF EXCEPTION TESTS
+
+    @Test(timeout = TIMEOUT)
+    public void testBFTRepeatChars() {        /*
+            pattern: aaaaaaaaaa
+            failure table: [0,1,2,3,4,5,6,7,8,9]
+            comparisons: 9
+         */
+        int[] failureTable = PatternMatching
+                .buildFailureTable("aaaaaaaaaa", comparator);
+        int[] expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        assertArrayEquals(expected, failureTable);
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 9.", 9, comparator.getComparisonCount());
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBuildFailureTableNone() {        /*
+            pattern: abcdefghij
+            failure table: [0,0,0,0,0,0,0,0,0,0]
+            comparisons: 9
+         */
+        int[] failureTable = PatternMatching
+                .buildFailureTable("abcdefghij", comparator);
+        int[] expected = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        assertArrayEquals(expected, failureTable);
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 9.", 9, comparator.getComparisonCount());
+    }
+
+
+    //long text tests for each algo
+    @Test(timeout = TIMEOUT)
+    public void testKMPReallyLong() {       /*
+        text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque
+        pulvinar lorem id neque volutpat lobortis consectetur
+        pattern: consectetur
+        comparisons expected: 135
+     */
+
+        List<Integer> ans = new ArrayList<>();
+        ans.add(28);
+        ans.add(112);
+
+        assertEquals(ans, PatternMatching.kmp(longtextPattern, longtext, comparator));
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 135.", 135, comparator.getComparisonCount());
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBMReallyLong() {       /*
+        text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Pellentesque pulvinar lorem id neque volutpat lobortis consectetur
+        pattern: consectetur
+        comparisons expected: 39 fast!
+     */
+
+        List<Integer> ans = new ArrayList<>();
+        ans.add(28);
+        ans.add(112);
+
+        assertEquals(ans, PatternMatching.boyerMoore(longtextPattern, longtext, comparator));
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 39.", 39, comparator.getComparisonCount());
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testRKReallyLong() {       /*
+        text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Pellentesque pulvinar lorem id neque volutpat lobortis consectetur
+        pattern: consectetur
+        comparisons expected: 22 faster!
+     */
+
+        List<Integer> ans = new ArrayList<>();
+        ans.add(28);
+        ans.add(112);
+
+        assertEquals(ans, PatternMatching.rabinKarp(longtextPattern, longtext, comparator));
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 22.", 22, comparator.getComparisonCount());
+    }
+
+    @Test(timeout = TIMEOUT)
+    public void testBMGReallyLong() {       /*
+        text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Pellentesque pulvinar lorem id neque volutpat lobortis consectetur
+        pattern: consectetur
+        comparisons expected: 46??
+     */
+
+        List<Integer> ans = new ArrayList<>();
+        ans.add(28);
+        ans.add(112);
+
+        assertEquals(ans, PatternMatching.boyerMooreGalilRule(longtextPattern, longtext, comparator));
+        assertTrue("Did not use the comparator.",
+                comparator.getComparisonCount() != 0);
+        assertEquals("Comparison count was " + comparator.getComparisonCount()
+                + ". Should be 46.", 46, comparator.getComparisonCount());
     }
 }
